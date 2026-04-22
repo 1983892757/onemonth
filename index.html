@@ -1,0 +1,654 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover, user-scalable=yes">
+    <title>❤️ 我们的一个月纪念日 ❤️</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        body {
+            background: #fef5f0;
+            font-family: system-ui, -apple-system, 'Segoe UI', Roboto, 'Helvetica Neue', sans-serif;
+            color: #4a2e2a;
+            padding: 20px 16px 60px;
+            min-height: 100vh;
+            position: relative;
+            overflow-x: hidden;
+        }
+        .stitch-deco {
+            position: fixed;
+            bottom: 20px;
+            right: 10px;
+            width: 80px;
+            opacity: 0.6;
+            pointer-events: auto;
+            cursor: pointer;
+            z-index: 0;
+        }
+        .stitch-deco-left {
+            position: fixed;
+            top: 100px;
+            left: 0px;
+            width: 60px;
+            opacity: 0.4;
+            pointer-events: none;
+            z-index: 0;
+        }
+        .stitch-deco-top {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            width: 70px;
+            opacity: 0.5;
+            pointer-events: none;
+            z-index: 0;
+        }
+        @media (max-width: 600px) {
+            .stitch-deco { width: 60px; bottom: 10px; right: 5px; }
+            .stitch-deco-left { width: 45px; top: 80px; }
+            .stitch-deco-top { width: 50px; }
+        }
+        .container {
+            max-width: 600px;
+            margin: 0 auto;
+            position: relative;
+            z-index: 1;
+        }
+        .lock-screen {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            min-height: 80vh;
+            text-align: center;
+        }
+        .lock-card {
+            background: white;
+            border-radius: 48px;
+            padding: 40px 24px;
+            box-shadow: 0 20px 35px -10px rgba(0,0,0,0.05);
+            width: 100%;
+        }
+        .lock-card h2 {
+            color: #d46b5e;
+            margin-bottom: 20px;
+            font-size: 1.8rem;
+        }
+        .code-input {
+            width: 100%;
+            padding: 16px 20px;
+            font-size: 1.2rem;
+            text-align: center;
+            border: 2px solid #ffe0d4;
+            border-radius: 60px;
+            background: #fffaf7;
+            outline: none;
+        }
+        .code-input:focus {
+            border-color: #d46b5e;
+        }
+        .unlock-btn {
+            background: #d46b5e;
+            color: white;
+            border: none;
+            padding: 14px 28px;
+            font-size: 1.1rem;
+            border-radius: 60px;
+            margin-top: 20px;
+            width: 100%;
+            cursor: pointer;
+        }
+        .unlock-btn:disabled {
+            background: #c9aca2;
+            cursor: not-allowed;
+        }
+        .error-msg {
+            color: #e07c5c;
+            margin-top: 16px;
+        }
+        .cheat-area {
+            margin-top: 20px;
+            padding-top: 16px;
+            border-top: 1px solid #ffe0d4;
+            display: none;
+        }
+        .cheat-input {
+            width: 100%;
+            padding: 12px 16px;
+            font-size: 0.9rem;
+            border: 2px solid #ffe0d4;
+            border-radius: 40px;
+            background: #fffaf7;
+            margin-bottom: 12px;
+        }
+        .cheat-btn {
+            background: #b85c50;
+            color: white;
+            border: none;
+            padding: 8px 16px;
+            border-radius: 40px;
+            cursor: pointer;
+        }
+        .main-content {
+            display: none;
+        }
+        .card {
+            background: white;
+            border-radius: 32px;
+            padding: 24px 20px;
+            margin-bottom: 24px;
+            box-shadow: 0 8px 20px rgba(0,0,0,0.03);
+        }
+        .hero {
+            text-align: center;
+            margin-bottom: 20px;
+        }
+        .hero h1 {
+            font-size: 2rem;
+            color: #d46b5e;
+        }
+        .photo-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(140px, 1fr));
+            gap: 12px;
+            margin-top: 12px;
+        }
+        .photo-item {
+            aspect-ratio: 1 / 1;
+            border-radius: 24px;
+            overflow: hidden;
+            background: #f0e2db;
+            cursor: pointer;
+        }
+        .photo-item img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            display: block;
+            pointer-events: none;  /* 让点击由父元素捕获，避免双层事件 */
+        }
+        .food-item {
+            background: #fffaf7;
+            border-radius: 24px;
+            padding: 16px;
+            margin-bottom: 16px;
+            border: 1px solid #ffe0d4;
+        }
+        .food-name {
+            font-weight: 600;
+            display: flex;
+            justify-content: space-between;
+            flex-wrap: wrap;
+        }
+        .food-rating {
+            margin: 6px 0;
+            color: #ffb347;
+        }
+        .like-btn, .show-detail-btn {
+            background: none;
+            border: none;
+            padding: 5px 12px;
+            border-radius: 40px;
+            cursor: pointer;
+            background: #fff0e8;
+        }
+        .food-detail {
+            display: none;
+            margin-top: 16px;
+            text-align: center;
+        }
+        .food-img {
+            max-width: 100%;
+            max-height: 200px;
+            border-radius: 24px;
+            cursor: pointer;
+        }
+        .food-comment {
+            background: #fff0e8;
+            padding: 10px;
+            border-radius: 20px;
+            margin-top: 8px;
+        }
+        .timeline {
+            display: flex;
+            flex-direction: column;
+            gap: 16px;
+        }
+        .milestone {
+            display: flex;
+            gap: 12px;
+        }
+        .milestone .date {
+            min-width: 70px;
+            font-weight: 600;
+            color: #d46b5e;
+        }
+        .letter {
+            white-space: pre-line;
+            line-height: 1.55;
+        }
+        .music-control {
+            position: fixed;
+            bottom: 20px;
+            left: 20px;
+            background: white;
+            border-radius: 40px;
+            padding: 8px 16px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+            cursor: pointer;
+            border: none;
+            color: #d46b5e;
+            z-index: 10;
+        }
+        footer {
+            text-align: center;
+            font-size: 0.7rem;
+            color: #c9aca2;
+            margin-top: 30px;
+        }
+        .toast {
+            position: fixed;
+            bottom: 30%;
+            left: 50%;
+            transform: translateX(-50%);
+            background: #d46b5e;
+            color: white;
+            padding: 12px 24px;
+            border-radius: 60px;
+            font-size: 0.9rem;
+            z-index: 20;
+            white-space: nowrap;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.2);
+            animation: fadeOut 3s forwards;
+        }
+        @keyframes fadeOut {
+            0% { opacity: 1; transform: translateX(-50%) scale(1); }
+            70% { opacity: 1; }
+            100% { opacity: 0; transform: translateX(-50%) scale(0.9); visibility: hidden; }
+        }
+    </style>
+</head>
+<body>
+
+<img class="stitch-deco" src="https://s1.aigei.com/src/img/png/6b/6b61b7d426794111b5f78a57c7822afa.png?imageMogr2/auto-orient/thumbnail/!282x282r/gravity/Center/crop/282x282/quality/85/%7CimageView2/2/w/282&e=2051020800&token=P7S2Xpzfz11vAkASLTkfHN7Fw-oOZBecqeJaxypL:T8O18yf0RDCL7t0EO_qD3Q1AXgw=" alt="史迪仔">
+<img class="stitch-deco-left" src="https://s1.aigei.com/src/img/png/23/231af1e1df8e461aa9c9782bb4fcaeea.png?imageMogr2/auto-orient/thumbnail/!226x282r/gravity/Center/crop/226x282/quality/85/&e=2051020800&token=P7S2Xpzfz11vAkASLTkfHN7Fw-oOZBecqeJaxypL:7btznNagXBlLODVmB10iFA661no=" alt="史迪仔">
+<img class="stitch-deco-top" src="https://s1.aigei.com/src/img/png/04/04fd3215c4a242b5a708367d3475fe7a.png?imageMogr2/auto-orient/thumbnail/!282x282r/gravity/Center/crop/282x282/quality/85/%7CimageView2/2/w/282&e=2051020800&token=P7S2Xpzfz11vAkASLTkfHN7Fw-oOZBecqeJaxypL:K0wsMixzr-5F5zR3pAz_RkrGY4w=" alt="史迪仔">
+
+<button id="musicBtn" class="music-control">🎵 播放音乐</button>
+
+<div class="container" id="app">
+    <div id="lockScreen" class="lock-screen">
+        <div class="lock-card">
+            <h2>🔐 一封给你的信</h2>
+            <p>宝宝输入暗号，开启我们的第一个月纪念册</p>
+            <input type="text" id="codeInput" class="code-input" placeholder="取件码" autocomplete="off">
+            <button id="unlockButton" class="unlock-btn">✨ 开启纪念日 ✨</button>
+            <div id="errorMsg" class="error-msg"></div>
+            <div id="cheatArea" class="cheat-area">
+                <input type="text" id="cheatCodeInput" class="cheat-input" placeholder="输入作弊码...">
+                <button id="cheatBtn" class="cheat-btn">🐣 使用作弊码</button>
+            </div>
+        </div>
+    </div>
+    <div id="mainContent" class="main-content">
+        <div class="hero">
+            <h1>❤️ 一个月快乐 ❤️</h1>
+            <div class="sub">2026.3.22 — 2026.4.22</div>
+        </div>
+        <div class="card">
+            <h3>📸 </h3>
+            <div id="photoWall" class="photo-grid"></div>
+            <p style="font-size: 0.7rem; color:#c9aca2; text-align: center;">达布吉布</p>
+        </div>
+        <div class="card">
+            <h3>🍜 </h3>
+            <div id="foodRanking"></div>
+            <p style="font-size: 0.7rem; text-align: center;">⭐️ 五星 = 和宝宝一样好吃 &nbsp;|&nbsp; ❤️ 点个赞 &nbsp;|&nbsp; 📷 点击查看照片和评价</p>
+        </div>
+        <div class="card">
+            <h3>📅 </h3>
+            <div id="timeline" class="timeline"></div>
+        </div>
+        <div class="card">
+            <h3>💌 </h3>
+            <div id="loveLetter" class="letter"></div>
+        </div>
+        <footer>🌙 独属于我们的一个月!<br>宝宝这附近有一个...</footer>
+    </div>
+</div>
+
+<audio id="bgMusic" loop preload="auto">
+    <source src="https://music.163.com/song/media/outer/url?id=1358658357.mp3" type="audio/mpeg">
+</audio>
+
+<script>
+    // ---------- 你的数据 ----------
+    const photoList = [
+        "https://s41.ax1x.com/2026/04/18/pe6DHte.jpg",
+        "https://s41.ax1x.com/2026/04/18/pe6DI0K.md.jpg",
+        "https://s41.ax1x.com/2026/04/18/pe6D5m6.jpg",
+        "https://s41.ax1x.com/2026/04/18/pe6DhOx.jpg",
+        "https://s41.ax1x.com/2026/04/22/pe2R97d.jpg",
+        "https://s41.ax1x.com/2026/04/21/pe2ZDqP.jpg",
+		"https://s41.ax1x.com/2026/04/18/pe6wFL8.md.jpg",
+        "https://s41.ax1x.com/2026/04/21/pe2ZBrt.jpg",
+        "https://s41.ax1x.com/2026/04/22/pe22j1K.jpg",
+        "https://s41.ax1x.com/2026/04/22/pe22Xp6.jpg"
+    ];
+
+    const foods = [
+        { id: 0, name: "妹妹带的咖啡", date: "2026.3.7", rating: 5, comment: "提了两杯奶茶，电动车的后座真的好香。然后你说你特地买了阿萨姆味的，我当时特别高兴你居然还能记着😘虽然没尝出来，但是尝到了比阿萨姆更甜的东西😋", image: "https://pics0.baidu.com/feed/d000baa1cd11728b42cc6e9a4c77a5dec1fd2cc4.jpeg@f_auto?token=06ff1eed1d143b4922f1a620594a75cc" },
+        { id: 1, name: "油茶米饺", date: "2026.3.7", rating: 5, comment: "我们的第一顿！虽然那个油炸米饭给我噎到了，但还是给个高分吧", image: "https://s41.ax1x.com/2026/04/21/pe2Za2d.jpg" },
+        { id: 2, name: "庐州太太", date: "2026.3.7", rating: 5, comment: "菜没有惊艳到我，但是宝宝你的眼睛真的好好看！", image: "https://s41.ax1x.com/2026/04/21/pe2ZdxA.jpg" },
+        { id: 3, name: "米村拌饭", date: "2026.3.15", rating: 2, comment: "不吃不吃", image: "https://pics1.baidu.com/feed/242dd42a2834349b6365511d4d6173de37d3be66.jpeg@f_auto?token=d866030bc8d468c18baab67cfb45d308" },
+        { id: 4, name: "詹记蛋挞&魏家冰淇淋", date: "2026.3.22", rating: 5, comment: "汉堡和之前吃的不一样哎，但是没有照片忘记什么味道了。宝宝忘记拍了嘛，还是说没有给我发！", image: "https://s41.ax1x.com/2026/04/21/pe2ZsVf.jpg" },
+        { id: 5, name: "盛冰城铁锅炖？", date: "2026.3.22", rating: 1, comment: "拉完了！最差，怎么越吃越咸啊！所以这是欲扬先抑嘛，为晚上的表白做铺垫？不够齁得我说话都难受", image: "https://s41.ax1x.com/2026/04/21/pe2ZU8H.jpg" },
+        { id: 6, name: "💌", date: "2026.4.4", rating: 5, comment: "高潮来了！", image: "https://pics3.baidu.com/feed/c2cec3fdfc03924550958994031fc2d27c1e25a0.jpeg@f_auto?token=b2f1e4246dec5aef7b8c58ed8a2a4aef" },
+        { id: 7, name: "绿茶", date: "2026.4.*", rating: 5, comment: "满分！因为有宝宝抽中的绿茶饼，宝宝说是因为和我在一起才这么幸运的😚", image: "https://s41.ax1x.com/2026/04/22/pe22v6O.jpg" },
+        { id: 8, name: "南京大排档", date: "2026.4.3", rating: 5, comment: "美玲粥超级好喝！好像还有一个虾仁豆腐也特别嫩，但是宝宝太让人伤心了😭", image: "https://s41.ax1x.com/2026/04/22/pe2hJjf.jpg" },
+        { id: 9, name: "披萨奇葩", date: "2026.4.4", rating: 5, comment: "我们是冠军！🏆(没有找到图片今晚先留着，明天再问宝宝要)", image: "https://pics3.baidu.com/feed/3bf33a87e950352a980707cfd7c89de2b3118b2a.jpeg@f_auto?token=ebbf862d67c9cf697a05e907327fb258" },
+        { id: 10, name: "必胜客", date: "2026.4.5", rating: 4, comment: "两个大面饼子给我吃撑了", image: "https://pics4.baidu.com/feed/86d6277f9e2f07084bdcd4f86dafde89ab01f28d.jpeg@f_auto?token=ef968f7d976985fe4be9da63aa7ee659" },
+        { id: 11, name: "科巷鸭血粉丝汤", date: "2026.4.19", rating: 5, comment: "比餐厅的好喝！宝宝我把汤都喝完了😋", image: "https://s41.ax1x.com/2026/04/21/pe2Z0KI.jpg" },
+        { id: 12, name: "新白鹿", date: "2026.4.19", rating: 1, comment: "拉爆了", image: "https://s41.ax1x.com/2026/04/22/pe2WfLF.jpg" },
+        { id: 13, name: "南京菜", date: "2026.4.19", rating: 5, comment: "真的佩服宝宝！宝宝换的芥末虾球无敌", image: "https://s41.ax1x.com/2026/04/21/pe2ZNPe.jpg" }
+    ];
+
+    const milestones = [
+        { date: "1月1日", desc: "🌅 我们的故事开始了" },
+        { date: "3月7日 早", desc: "🌸 我们的第一次约会嘛，美好的时光。下了地铁就飞奔，我故意站在了地铁口的对面，然后在后面看着她找我哈哈哈哈哈，宝宝那天你真可爱。第一面的相处很好啊，聊不过来的话题，说不完的话，就像认识好久的朋友？而且宝宝你真的惊艳到我啦🤗！" },
+        { date: "3月7日 晚", desc: "🚝 分别的时候抱了一下，宝宝你还骗我牵手。宝宝虽然话术很俗但是我不介意：“要不要抱一下，你的手好大”哈哈哈哈。后面全场最拉来了：我能牵一下手嘛？你来了句“刚才不是牵过了嘛！”尴尬死我了宝宝，我当时恨不得做个哑巴🤐不过目的还是达到了。" },
+        { date: "3月15日", desc: "🤝 她的手很冷，我牵着她的手捂着，发现她的手会慢慢变暖，自己的手也更暖和了。" },
+        { date: "3月22日", desc: "🌳 植树节那天，你成了我的女朋友" },
+        { date: "4月6日", desc: "🌳 被打了😭，喝奶茶的时候开玩笑被宝宝打了一巴掌，但是我感觉有点爽哎😍" },
+        { date: "4月21日", desc: "😴 宝宝我好困，就先这样吧" }
+    ];
+
+    const loveLetterText = `下了车刚上电梯，她在外面探了下头，我看见了！提着箱子就往上爬，但是箱子好重，好狼狈，爬了两步还是歇着吧哈哈哈哈。等等，她好像捧了花，是给我的嘛，是给我的啊！原来男生也可以收到花。\n我问她怎么买花了。她说“想买就买来送给你的。”\n“宝宝，我真的好幸运能当你的男朋友。”\n一个月只是一个开始，宝宝，未来还有无数个月想和你一起过。\n\n爱你。\n——你的宝宝`;
+
+    // ---------- 辅助函数 ----------
+    const fallbackImage = "data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 200 200'%3E%3Crect width='200' height='200' fill='%23f0e2db'/%3E%3Ctext x='50%25' y='50%25' dominant-baseline='middle' text-anchor='middle' fill='%23b97f72' font-size='14'%3E图片加载失败%3C/text%3E%3C/svg%3E";
+
+    function renderStars(rating) {
+        return '★'.repeat(rating) + '☆'.repeat(5 - rating);
+    }
+
+    function getLikes() {
+        const stored = localStorage.getItem('foodLikes');
+        if (stored) return JSON.parse(stored);
+        let defaultLikes = {};
+        foods.forEach(f => defaultLikes[f.id] = 0);
+        return defaultLikes;
+    }
+    function saveLikes(likes) { localStorage.setItem('foodLikes', JSON.stringify(likes)); }
+
+    function getTotalLikes() {
+        const likes = getLikes();
+        let total = 0;
+        for (let key in likes) total += likes[key];
+        return total;
+    }
+
+    let egg20Triggered = false;
+
+    function showToast(message) {
+        const toast = document.createElement('div');
+        toast.className = 'toast';
+        toast.innerText = message;
+        document.body.appendChild(toast);
+        setTimeout(() => toast.remove(), 3000);
+    }
+
+    function checkLikeMilestone() {
+        if (egg20Triggered) return;
+        const total = getTotalLikes();
+        if (total >= 20) {
+            egg20Triggered = true;
+            showToast('🎉 宝宝竟然发现彩蛋了！ 奖励一个亲亲！😙❤️');
+        }
+    }
+
+    function renderFoodRanking() {
+        const likes = getLikes();
+        return foods.map(food => `
+            <div class="food-item">
+                <div class="food-name">
+                    <span>${food.name}</span>
+                    <span style="font-size:0.7rem;color:#c9aca2;">${food.date}</span>
+                </div>
+                <div class="food-rating">${renderStars(food.rating)}</div>
+                <div style="margin:8px 0">
+                    <button class="like-btn" data-id="${food.id}">❤️ <span class="like-count">${likes[food.id] || 0}</span></button>
+                    <button class="show-detail-btn" data-id="${food.id}" style="margin-left:12px;">📷 显示图片和评论</button>
+                </div>
+                <div class="food-detail" id="detail-${food.id}" style="display:none;">
+                    <img class="food-img" src="${food.image}" onerror="this.src='${fallbackImage}'">
+                    <div class="food-comment">📝 我的评价：${food.comment}</div>
+                </div>
+            </div>
+        `).join('');
+    }
+
+    function handleLikeClick(e) {
+        const btn = e.currentTarget;
+        const id = parseInt(btn.dataset.id);
+        const likes = getLikes();
+        likes[id] = (likes[id]||0)+1;
+        saveLikes(likes);
+        btn.querySelector('.like-count').innerText = likes[id];
+        btn.style.transform = 'scale(1.1)';
+        setTimeout(()=> btn.style.transform = '', 150);
+        checkLikeMilestone();
+    }
+    
+    function handleDetailToggle(e) {
+        const btn = e.currentTarget;
+        const id = parseInt(btn.dataset.id);
+        const div = document.getElementById(`detail-${id}`);
+        if (div.style.display === 'none') {
+            div.style.display = 'block';
+            btn.textContent = '📷 隐藏图片和评论';
+        } else {
+            div.style.display = 'none';
+            btn.textContent = '📷 显示图片和评论';
+        }
+    }
+    
+    function bindInteractions() {
+        document.querySelectorAll('.like-btn').forEach(btn => {
+            btn.removeEventListener('click', handleLikeClick);
+            btn.addEventListener('click', handleLikeClick);
+        });
+        document.querySelectorAll('.show-detail-btn').forEach(btn => {
+            btn.removeEventListener('click', handleDetailToggle);
+            btn.addEventListener('click', handleDetailToggle);
+        });
+    }
+
+    // 照片墙渲染，为每个图片容器添加点击事件
+    function renderPhotoWall() {
+        return photoList.map((src, index) => `
+            <div class="photo-item" data-photo-index="${index}">
+                <img src="${src}" loading="lazy" onerror="this.src='${fallbackImage}'">
+            </div>
+        `).join('');
+    }
+
+    // 为照片墙图片绑定点击toast
+    function bindPhotoClickEvents() {
+        const photoItems = document.querySelectorAll('.photo-item');
+        const messages = [
+            "卡旺卡✨",
+            "❤️",
+            "😋",
+            "🍴",
+            "小喵咪也是我们的见证人",
+            "宝宝我相信美好的事情都是发生在夜晚💕",
+			"宝宝送的花超级好看！不过没有我的宝宝好看💑",
+            "有一朵一模一样的花哎，宝宝我们这算是双向奔赴嘛😘",
+            "📸",
+            "💕"
+        ];
+        photoItems.forEach((item, idx) => {
+            // 移除旧监听避免重复
+            item.removeEventListener('click', photoClickHandler);
+            // 使用自定义属性存储索引，或直接用闭包
+            item.addEventListener('click', () => {
+                const msg = messages[idx % messages.length];
+                showToast(msg);
+            });
+        });
+    }
+
+    // 兼容旧函数名，实际处理在populate里调用
+    function photoClickHandler(e) {
+        // 由外部绑定实现
+    }
+
+// 为美食详情中的图片添加点击事件（仅 id=6 生效）
+function handleFoodImageClick(e) {
+    e.stopPropagation();
+    showToast('别点了宝宝，没有了就是没有了哈哈哈');
+}
+
+function bindFoodImageClickEvents() {
+    document.querySelectorAll('.food-img').forEach(img => {
+        const foodItem = img.closest('.food-item');
+        if (!foodItem) return;
+        const foodId = parseInt(foodItem.getAttribute('data-food-id'));
+        if (foodId === 6) {
+            img.removeEventListener('click', handleFoodImageClick);
+            img.addEventListener('click', handleFoodImageClick);
+        } else {
+            img.removeEventListener('click', handleFoodImageClick);
+        }
+    });
+}
+
+    function renderTimeline() {
+        return milestones.map(m => `<div class="milestone"><span class="date">${m.date}</span><span>${m.desc}</span></div>`).join('');
+    }
+    
+    function populateMainContent() {
+        document.getElementById('photoWall').innerHTML = renderPhotoWall();
+        document.getElementById('foodRanking').innerHTML = renderFoodRanking();
+        bindInteractions();
+        bindPhotoClickEvents();
+        // 因为美食图片是动态生成的，需要在每次渲染后绑定
+        setTimeout(() => bindFoodImageClickEvents(), 100);
+        document.getElementById('timeline').innerHTML = renderTimeline();
+        document.getElementById('loveLetter').innerHTML = loveLetterText.replace(/\n/g, '<br>');
+    }
+
+    // ---------- 音乐控制 ----------
+    const audio = document.getElementById('bgMusic');
+    const musicBtn = document.getElementById('musicBtn');
+    let isPlaying = false;
+    musicBtn.onclick = () => {
+        if (isPlaying) {
+            audio.pause();
+            musicBtn.innerHTML = '🎵 播放音乐';
+        } else {
+            audio.play().catch(e=>console.log);
+            musicBtn.innerHTML = '🎵 暂停音乐';
+        }
+        isPlaying = !isPlaying;
+    };
+
+    // ---------- 解锁逻辑 ----------
+    const CORRECT_CODE = "1-1-0422";
+    let remainingAttempts = 3;
+    const codeInput = document.getElementById('codeInput');
+    const unlockBtn = document.getElementById('unlockButton');
+    const errorMsg = document.getElementById('errorMsg');
+    const cheatArea = document.getElementById('cheatArea');
+    const cheatCodeInput = document.getElementById('cheatCodeInput');
+    const cheatBtn = document.getElementById('cheatBtn');
+
+    function disableUnlock(disabled) {
+        codeInput.disabled = disabled;
+        unlockBtn.disabled = disabled;
+        if (disabled) {
+            errorMsg.innerText = '🔒 尝试次数已用完！请输入作弊码获取机会。';
+        } else {
+            errorMsg.innerText = '';
+        }
+    }
+
+    function resetAttempts() {
+        remainingAttempts = 3;
+        disableUnlock(false);
+        cheatArea.style.display = 'none';
+        errorMsg.innerText = '';
+        codeInput.value = '';
+        codeInput.focus();
+    }
+
+    function unlock() {
+        const input = codeInput.value.trim();
+        if (input === CORRECT_CODE) {
+            document.getElementById('lockScreen').style.display = 'none';
+            document.getElementById('mainContent').style.display = 'block';
+            populateMainContent();
+            audio.play().then(()=>{
+                musicBtn.innerHTML = '🎵 暂停音乐';
+                isPlaying = true;
+            }).catch(()=>{
+                musicBtn.style.backgroundColor = '#ffe0d4';
+                setTimeout(()=> musicBtn.style.backgroundColor = '', 1000);
+            });
+        } else {
+            remainingAttempts--;
+            if (remainingAttempts > 0) {
+                errorMsg.innerText = `❌ 取件码错误！还剩 ${remainingAttempts} 次机会。`;
+                codeInput.value = '';
+                codeInput.focus();
+            } else {
+                errorMsg.innerText = '❌ 次数用完了！快使用作弊码吧～';
+                disableUnlock(true);
+                cheatArea.style.display = 'block';
+                cheatCodeInput.value = '';
+                cheatCodeInput.focus();
+            }
+        }
+    }
+
+    function useCheat() {
+        const cheat = cheatCodeInput.value.trim();
+        if (cheat === '求求宝宝再给一次机会') {
+            resetAttempts();
+            showToast('🐣 宝宝心软了！剩余3次机会，加油～');
+        } else {
+            alert('作弊码不对哦，再想想～');
+            cheatCodeInput.value = '';
+            cheatCodeInput.focus();
+        }
+    }
+
+    unlockBtn.onclick = unlock;
+    codeInput.onkeypress = e => e.key === 'Enter' && unlock();
+    cheatBtn.onclick = useCheat;
+    cheatCodeInput.onkeypress = e => e.key === 'Enter' && useCheat();
+
+    // ---------- 史迪仔整蛊彩蛋 ----------
+    const stitchDeco = document.querySelector('.stitch-deco');
+    let stitchClickCount = 0;
+    stitchDeco.addEventListener('click', () => {
+        stitchClickCount++;
+        if (stitchClickCount === 1) {
+            showToast('🤫 嘘～ 别告诉别人你点了史迪仔～');
+        } else if (stitchClickCount === 3) {
+            showToast('😈 再点它就要变身了哦！');
+        } else if (stitchClickCount === 5) {
+            showToast('💥 宝宝是要亲一下嘛😙');
+            stitchClickCount = 0;
+        } else {
+            showToast('🐾 史迪仔打了个滚～');
+        }
+    });
+</script>
+</body>
+</html>
