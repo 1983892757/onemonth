@@ -572,7 +572,11 @@
     };
 
     // ---------- 解锁逻辑 ----------
-    const CORRECT_CODE = "1-1-0422";
+    // 动态生成密码：格式为 "1-1-月份日期"（月份和日期均为两位数，例如 1-1-0501）
+const today = new Date();
+const month = String(today.getMonth() + 1).padStart(2, '0'); // 月份补零
+const day = String(today.getDate()).padStart(2, '0');       // 日期补零
+const CORRECT_CODE = `1-1-${month}${day}`;
     let remainingAttempts = 3;
     const codeInput = document.getElementById('codeInput');
     const unlockBtn = document.getElementById('unlockButton');
